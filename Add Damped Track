@@ -1,0 +1,30 @@
+import bpy
+
+# get the selected armature object
+armature_obj = bpy.context.object
+
+# get the selected bones
+selected_bones = [bone for bone in armature_obj.data.bones if bone.select]
+
+# define a function to add the bone constraint
+def add_bone_constraint(bone):
+    # get the pose bone object for the given bone
+    pose_bone = armature_obj.pose.bones[bone.name]
+    
+    # get the child bone if there is one
+    child = None
+    if bone.children:
+        child = bone.children[0]
+    
+    # add the bone constraint
+    constraint = pose_bone.constraints.new(type='DAMPED_TRACK')
+    constraint.name = 'Bone Constraint'
+    constraint.target_space = 'WORLD'
+    constraint.influence = 0.5
+    if child:
+        constraint.target = armature_obj
+        constraint.subtarget = child.name
+
+# loop through the selected bones and add the bone constraint
+for bone in selected_bones:
+    add_bone_constraint(bone)
